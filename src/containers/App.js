@@ -1,47 +1,41 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import CardList from "../Components/CardList";
 import SearchBox from "../Components/SearchBox";
 import Scroll from "../Components/Scroll";
-import ErrorBoundry from "../Components/ErrorBoundry";
+import ErrorBoundary from "../Components/ErrorBoundary";
 import "./App.css";
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      robots: [],
-      searchfield: "",
-    };
-  }
+function App() {
+  const [robots, setRobots] = useState([]);
+  const [searchfield, setSearchfield] = useState("");
 
-  componentDidMount() {
+  useEffect(() => {
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
-      .then((users) => this.setState({ robots: users }));
-  }
+      .then((users) => setRobots(users));
+  }, []); // The empty array [] makes this effect run only once, similar to componentDidMount
 
-  onSearchChange = (event) => {
-    this.setState({ searchfield: event.target.value });
+  const onSearchChange = (event) => {
+    setSearchfield(event.target.value);
   };
-  render() {
-    const { robots, searchfield } = this.state;
-    const filteredRobots = robots.filter((robot) => {
-      return robot.name.toLowerCase().includes(searchfield.toLowerCase());
-    });
-    return !robots.length ? (
-      <h1>Loading</h1>
-    ) : (
-      <div className="tc">
-        <h1 className="f1">RoboFriends</h1>
-        <SearchBox searchChange={this.onSearchChange} />
-        <Scroll>
-          <ErrorBoundry>
-            <CardList robots={filteredRobots} />
-          </ErrorBoundry>
-        </Scroll>
-      </div>
-    );
-  }
+
+  const filteredRobots = robots.filter((robot) => {
+    return robot.name.toLowerCase().includes(searchfield.toLowerCase());
+  });
+
+  return !robots.length ? (
+    <h1>Loading</h1>
+  ) : (
+    <div className="tc">
+      <h1 className="f1">RoboFriends</h1>
+      <SearchBox searchChange={onSearchChange} />
+      <Scroll>
+        <ErrorBoundary>
+          <CardList robots={filteredRobots} />
+        </ErrorBoundary>
+      </Scroll>
+    </div>
+  );
 }
 
 export default App;
